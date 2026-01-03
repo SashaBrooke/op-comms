@@ -4,11 +4,11 @@ package opcomms.extcomm;
 
 import "extcomm/common.proto";
 
-// Status enum used only by ACK packets
+// Success status of an action ACK'd
 enum Status {
-  STATUS_OK = 0;
-  STATUS_INVALID = 1;
-  STATUS_OPERATION_FAILED = 2;
+    STATUS_OK = 0;
+    STATUS_INVALID_DATA = 1;
+    STATUS_OPERATION_FAILED = 2;
 }
 
 // Acknowledgement packets: server -> client in response to commands
