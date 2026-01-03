@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package opcomms.extcomm;
+
+// Common types shared by extcomm protos
+
+message Header {
+    // Protocol/schema version
+    uint32 version = 1;
+
+    // Sequence number for ordering/acks
+    uint32 seq = 2;
+}

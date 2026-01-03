@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package opcomms.extcomm;
+
+import "extcomm/common.proto";
+
+// Status enum used only by ACK packets
+enum Status {
+  STATUS_OK = 0;
+  STATUS_INVALID = 1;
+  STATUS_OPERATION_FAILED = 2;
+}
+
+// Acknowledgement packets: server -> client in response to commands
+message Ack {
+  Header header = 1;
+
+  // Sequence number being acknowledged
+  uint32 ack_seq = 2;
+
+  Status status = 3;
+}

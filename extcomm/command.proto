@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package opcomms.extcomm;
+
+import "extcomm/common.proto";
+
+// Config
+message ConfigReadCmd {}
+message ConfigSaveCmd {}
+
+// Gimbal
+message GimbalReadCmd {}
+message GimbalFreeCmd {}
+message GimbalArmCmd {}
+message GimbalSerialNoCmd { uint32 serial = 1; }
+
+// Streaming control
+message StreamRateCmd { uint32 rate = 1; }
+message StreamGlobalCmd { bool enabled = 1; }
+// (per-axis streaming commands removed; only global settings remain)
+
+// Pan / PID tuning
+message PanSetPosCmd { float setpoint = 1; }
+message PanPidKpCmd { float value = 1; }
+message PanPidKiCmd { float value = 1; }
+message PanPidKdCmd { float value = 1; }
+message PanPidTauCmd { float value = 1; }
+message PanPidOutLimMinCmd { float value = 1; }
+message PanPidOutLimMaxCmd { float value = 1; }
+message PanPidIntLimMinCmd { float value = 1; }
+message PanPidIntLimMaxCmd { float value = 1; }
+message PanPidRevertCmd {}
+
+// Commands are sent from client -> server.
+message Command {
+    Header header = 1;
+
+    oneof cmd {
+		// Config
+		ConfigReadCmd config_read = 10;
+		ConfigSaveCmd config_save = 11;
+
+		// Gimbal control
+		GimbalReadCmd gimbal_read = 20;
+		GimbalFreeCmd gimbal_free = 21;
+		GimbalArmCmd gimbal_arm = 22;
+		GimbalSerialNoCmd gimbal_serialno = 23;
+
+		// Streaming control
+		StreamRateCmd stream_rate = 30;
+		StreamGlobalCmd stream_global = 31;
+
+		// Pan / PID tuning
+		PanSetPosCmd pan_setpos = 40;
+		PanPidKpCmd pan_pid_kp = 41;
+		PanPidKiCmd pan_pid_ki = 42;
+		PanPidKdCmd pan_pid_kd = 43;
+		PanPidTauCmd pan_pid_tau = 44;
+		PanPidOutLimMinCmd pan_pid_outLimMin = 45;
+		PanPidOutLimMaxCmd pan_pid_outLimMax = 46;
+		PanPidIntLimMinCmd pan_pid_intLimMin = 47;
+		PanPidIntLimMaxCmd pan_pid_intLimMax = 48;
+		PanPidRevertCmd pan_pid_revert = 49;
+    }
+}
