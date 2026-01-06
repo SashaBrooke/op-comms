@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package opcomms.extcomm;
+
+// ------------------------------ Command payload ------------------------------
+message Command {
+    oneof cmd {
+        bool placeholder = 1; // TODO: Replace with actual command types
+    }
+}
+
+// ------------------------------ Stream payload -------------------------------
+enum Axis {
+    AXIS_PAN     = 0;
+    AXIS_TILT    = 1;
+    AXIS_UNKNOWN = 2;
+}
+
+enum MotorDirection {
+    MOTOR_DIR_CW      = 0;
+    MOTOR_DIR_CCW     = 1;
+    MOTOR_DIR_UNKNOWN = 2;
+}
+
+message AxisInfo {
+    Axis           axis      = 1;
+    float          angle_deg = 2;
+    MotorDirection motor_dir = 3;
+}
+
+message Stream {
+    oneof data {
+        AxisInfo axis_info = 1;
+    }
+}
+
+// ---------------------- Package acknowledgment payload -----------------------
+enum AckCode {
+    STATUS_OK               = 0;
+    STATUS_INVALID_DATA     = 1;
+    STATUS_OPERATION_FAILED = 2;
+}
+
+message Ack {
+    uint32  seq  = 1; // sequence number being acknowledged
+    AckCode code = 2; // ack code
+}
+
+// ------------------- Generic external communication packet -------------------
+message Header {
+  uint32 schema_version = 1;
+  uint32 seq            = 2;
+}
+
+message ExtcommPacket {
+    Header header = 1;
+
+    oneof payload {
+        Command command = 2;
+        Stream  stream  = 3;
+        Ack     ack     = 4;
+    }
+}
