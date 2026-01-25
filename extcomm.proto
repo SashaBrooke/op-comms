@@ -26,6 +26,7 @@ message AxisInfo {
     Axis           axis      = 1;
     float          angle_deg = 2;
     MotorDirection motor_dir = 3;
+    uint32         motor_pwm = 4;
 }
 
 message Stream {
@@ -44,12 +45,18 @@ enum AckCode {
 message Ack {
     uint32  seq  = 1; // sequence number being acknowledged
     AckCode code = 2; // ack code
+    // Optional data response (for request commands)
 }
 
 // ------------------- Generic external communication packet -------------------
+enum SchemaVersion {
+    SCHEMA_V_UNKNOWN = 0;
+    SCHEMA_V1 = 1;
+}
+
 message Header {
   uint32 schema_version = 1;
-  uint32 seq            = 2;
+  optional uint32 seq   = 2;
 }
 
 message ExtcommPacket {
