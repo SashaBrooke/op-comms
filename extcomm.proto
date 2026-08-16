@@ -50,7 +50,9 @@ enum AckCode {
 }
 
 message Ack {
-    AckCode code = 1; // ack code
+    uint32  packet_id  = 1; // packet ID being acknowledged
+    AckCode code       = 2; // ack code
+    // Optional data response (for request commands)
 }
 
 // ------------------- Generic external communication packet -------------------
