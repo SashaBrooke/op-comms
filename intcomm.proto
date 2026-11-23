@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package opcomms.intcomm;
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Axis {
+    AXIS_PAN     = 0;
+    AXIS_TILT    = 1;
+    AXIS_UNKNOWN = 2;
+}
+
+enum GimbalMode {
+    GIMBAL_MODE_FREE  = 0;
+    GIMBAL_MODE_ARMED = 1;
+}
+
+enum MotorDirection {
+    MOTOR_DIR_CW      = 0;
+    MOTOR_DIR_CCW     = 1;
+    MOTOR_DIR_UNKNOWN = 2;
+}
+
+enum AckCode {
+    STATUS_OK               = 0;
+    STATUS_INVALID_DATA     = 1;
+    STATUS_OPERATION_FAILED = 2;
+    STATUS_OUT_OF_LIMITS    = 3;
+    STATUS_UNSET_LIMITS     = 4;
+}
+
+// ============================================================================
+// SHARED DATA STRUCTURES
+// ============================================================================
+
+message PidParams {
+    optional float kp          = 1;
+    optional float ki          = 2;
+    optional float kd          = 3;
+    optional float tau         = 4;
+    optional float out_lim_min = 5;
+    optional float out_lim_max = 6;
+    optional float int_lim_min = 7;
+    optional float int_lim_max = 8;
+}
+
+message AxisLimits {
+    float lower_limit = 1;
+    float upper_limit = 2;
+    bool  is_set      = 3;
+}
+
+message GimbalConfigData {
+    PidParams pan_pid  = 1;
+    PidParams tilt_pid = 2;
+}
+
+message GimbalStateData {
+    GimbalMode mode                = 1;
+    bool       saved_configuration = 2;
+    float      pan_setpoint        = 3;
+    float      pan_current_angle   = 4;
+    AxisLimits pan_limits          = 5;
+    bool       streaming_global    = 6;
+    uint32     stream_rate_hz      = 7;
+}
+
+// ============================================================================
+// COMMAND PAYLOADS
+// ============================================================================
+
+message StreamCommand {
+    optional bool   global_streaming = 1;
+    optional uint32 stream_rate_hz   = 2;
+    optional bool   pan_pos_stream   = 3;
+    optional bool   pan_pid_stream   = 4;
+    optional bool   pan_motor_stream = 5;
+}
+
+enum SystemAction {
+    ACTION_UNKNOWN     = 0;
+    ACTION_CONFIG_READ = 1;
+    ACTION_CONFIG_SAVE = 2;
+    ACTION_GIMBAL_READ = 3;
+    ACTION_GIMBAL_FREE = 4;
+    ACTION_GIMBAL_ARM  = 5;
+}
+
+message SetpointCommand {
+    Axis  axis     = 1;
+    float setpoint = 2;
+}
+
+message PidSetCommand {
+    Axis      axis   = 1;
+    PidParams params = 2;
+}
+
+message PidRevertCommand {
+    Axis axis = 1;
+}
+
+message Command {
+    uint32 packet_id = 1;
+
+    oneof cmd {
+        StreamCommand    stream_command     = 2;
+        SystemAction     system_action      = 3;
+        SetpointCommand  setpoint_command   = 4;
+        PidSetCommand    pid_set_command    = 5;
+        PidRevertCommand pid_revert_command = 6;
+    }
+}
+
+// ============================================================================
+// STREAM PAYLOADS
+// ============================================================================
+
+message AxisInfo {
+    Axis           axis      = 1;
+    float          angle_deg = 2;
+    MotorDirection motor_dir = 3;
+    uint32         motor_pwm = 4;
+}
+
+message PidInfo {
+    Axis  axis     = 1;
+    float setpoint = 2;
+    float measured = 3;
+    float p_term   = 4;
+    float i_term   = 5;
+    float d_term   = 6;
+    float output   = 7;
+}
+
+message Stream {
+    oneof data {
+        AxisInfo axis_info = 1;
+        PidInfo  pid_info  = 2;
+    }
+}
+
+// ============================================================================
+// ACKNOWLEDGMENT PAYLOAD
+// ============================================================================
+
+message Ack {
+    uint32  packet_id = 1; // Matches the Command.packet_id being acknowledged
+    AckCode code      = 2;
+
+    oneof response_data {
+        GimbalConfigData config_data = 3;
+        GimbalStateData  state_data  = 4;
+    }
+}
+
+// ============================================================================
+// TOP-LEVEL PACKET
+// ============================================================================
+
+message IntcommPacket {
+    oneof payload {
+        Command command = 1;
+        Stream  stream  = 2;
+        Ack     ack     = 3;
+    }
+}
